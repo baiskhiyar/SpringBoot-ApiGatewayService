@@ -1,0 +1,12 @@
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/configs/RedisConfig.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/configs/GatewayConfiguration.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/configs/PublicKeyProvider.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/dto/UsersDTO.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/configs/RestTemplateConfig.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/configs/AuthConfig.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/controllers/GatewayController.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/ApiGateWayServiceApplication.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/configs/AuthServerPublicKeyProvider.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/services/RedisService.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/configs/JwtValidationFilter.java
+/Users/hungerbox/Documents/SpringBootProjects/SpringBoot-ApiGatewayService/src/main/java/ApiGateWayService/services/GatewayService.java
