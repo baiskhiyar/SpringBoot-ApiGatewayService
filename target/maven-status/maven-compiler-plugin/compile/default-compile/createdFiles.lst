@@ -1,8 +1,0 @@
-ApiGateWayService/ApiGateWayServiceApplication.class
-ApiGateWayService/configs/RestTemplateConfig.class
-ApiGateWayService/controllers/GatewayController.class
-ApiGateWayService/services/GatewayService$1.class
-ApiGateWayService/services/GatewayService.class
-ApiGateWayService/dto/UsersDTO.class
-ApiGateWayService/configs/RedisConfig.class
-ApiGateWayService/services/RedisService.class
