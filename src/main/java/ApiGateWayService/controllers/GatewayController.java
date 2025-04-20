@@ -36,8 +36,7 @@ public class GatewayController {
         try {
             return gatewayService.handleRequests(method, path, headers, bodyBytes, queryParams);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
 

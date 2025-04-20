@@ -1,7 +1,9 @@
 package ApiGateWayService.services;
 
+import ApiGateWayService.helpers.Exception400;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient;
@@ -16,6 +18,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class GatewayService {
 
@@ -40,27 +43,16 @@ public class GatewayService {
             return loginUser(endPoint, headers, body);
         } else {
             String authToken = getAuthTokenFromHeaders(headers);
-            if (authToken != null) {
-                // TODO : Dont call the auth service, decode the token here.
-                Boolean isTokenValid = validateAuthToken(authToken, requestHeaders);
-                if (!isTokenValid) {
-                    throw new Exception("Invalid token");
-                } else {
-                    System.out.println("token valid!");
-                    // TODO : Need to decode the token and get user details and add it to headers.
-                    // Setting user data in request headers.
-                    // requestHeaders.set("X-USER-ID", String.valueOf(userData.getId()));
-                    // requestHeaders.set("X-USER-USERNAME", userData.getUsername());
-                    // requestHeaders.set("X-USER-SCOPES", Arrays.toString(userData.getUserScopes()));
-                }
-            } else {
-                return new ResponseEntity<>("Not authorized", HttpStatus.UNAUTHORIZED);
+            if (authToken == null){
+                throw new Exception400("Auth token not found in headers!");
             }
-            try {
-                return connectWithBackend(method, endPoint, requestHeaders, body, queryParams);
-            } catch (Exception e) {
-                return new ResponseEntity<>("Not authorized", HttpStatus.UNAUTHORIZED);
+            // First check in redis, if not found then call to auth service for validation and save in redis.
+            if (!validateAuthToken(authToken, requestHeaders)) {
+                throw new Exception400("Invalid auth token!");
             }
+            log.info("Valid Auth token : {}", authToken);
+            // TODO :  attach userId, username, roles after extracting it from the auth token.
+            return connectWithBackend(method, endPoint, requestHeaders, body, queryParams);
         }
     }
 
@@ -103,21 +95,12 @@ public class GatewayService {
     ) throws Exception {
 
         // Determine Target Service based on endpoint prefix
-        String serviceId;
-        if (endPoint.startsWith("/spring/auth")) {
-            serviceId = "Auth-Service";
-        } else if (endPoint.startsWith("/spring/users")) {
-            serviceId = "User-Service";
-        } else if (endPoint.startsWith("/spring/products")) {
-            serviceId = "Product-Service";
-        } else {
-            throw new Exception("Endpoint route not found: " + endPoint);
-        }
+        String serviceId = getServiceId(endPoint);
 
         // Discover Service Instance
         ServiceInstance serviceInstance = discoveryClient.getInstances(serviceId).stream().findFirst().orElse(null);
         if (serviceInstance == null) {
-            throw new Exception(serviceId + "not found in discoveryClient!");
+            throw new Exception400(serviceId + " : not found in discoveryClient!");
         }
         // Getting base url of the service instance.
         String targetServiceBaseUrl = serviceInstance.getUri().toString();
@@ -150,17 +133,12 @@ public class GatewayService {
                     Object.class // Keep response generic
             );
         } catch (HttpStatusCodeException e) {
-            System.err.println(e.getStatusCode());
-            System.err.println(e.getResponseBodyAsString());
-            // Return the error response entity from the exception
             return ResponseEntity
                     .status(e.getStatusCode())
                     .headers(e.getResponseHeaders())
-                    .body(e.getResponseBodyAsString()); // Return error body as String (or parse if needed)
+                    .body(e.getResponseBodyAsString());
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            // Re-throw or return a generic server error response
-            throw new Exception("Error executing request to " + serviceId + ": " + e.getMessage(), e);
+            throw new Exception400("Error executing request to " + serviceId + ": " + e.getMessage(), e);
         }
     }
 
@@ -174,5 +152,23 @@ public class GatewayService {
             }
         }
         return authToken;
+    }
+
+    public String getServiceId(String endPoint) throws Exception {
+        String serviceId;
+        if (endPoint.startsWith("/spring/auth")) {
+            serviceId = "Auth-Service";
+        } else if (endPoint.startsWith("/spring/users")) {
+            serviceId = "User-Service";
+        } else if (endPoint.startsWith("/spring/products")) {
+            serviceId = "Product-Service";
+        } else if (endPoint.startsWith("/spring/ordering")) {
+            serviceId = "Ordering-Service";
+        } else if (endPoint.startsWith("/spring/payments")) {
+            serviceId = "Payment-Service";
+        } else {
+            throw new Exception400("Endpoint route not found: " + endPoint);
+        }
+        return serviceId;
     }
 }
